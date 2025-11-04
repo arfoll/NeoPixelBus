@@ -36,7 +36,16 @@ public:
 
     TwoWireHspiImple(uint8_t, uint8_t) // clock and data pins ignored for hardware SPI
     {
+#if defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32S3)
+        // This is quite hacky but since HSPI is the default SPI bus on ESP32 I feel
+        // this makes more sense
+        _hspi = new SPIClass(FSPI);
+#else
+        // Behaviour is a little strange here, whilst VSPI is the default, the pinmap
+        // gives you VSPI pins. It is a litle unclear to me if this is in reality
+        // just HSPI matrix mapped to VSPI pins
         _hspi = new SPIClass(HSPI);
+#endif
     }
 
     ~TwoWireHspiImple()
